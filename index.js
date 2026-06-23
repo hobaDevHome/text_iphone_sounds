@@ -30,42 +30,42 @@ lib.ssMetadata = [
 
 
 
-(lib.CachedBmp_154 = function() {
+(lib.CachedBmp_6 = function() {
 	this.initialize(ss["index_atlas_4"]);
 	this.gotoAndStop(0);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_153 = function() {
+(lib.CachedBmp_5 = function() {
 	this.initialize(ss["index_atlas_4"]);
 	this.gotoAndStop(1);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_152 = function() {
+(lib.CachedBmp_4 = function() {
 	this.initialize(ss["index_atlas_4"]);
 	this.gotoAndStop(2);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_151 = function() {
+(lib.CachedBmp_3 = function() {
 	this.initialize(ss["index_atlas_4"]);
 	this.gotoAndStop(3);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_150 = function() {
+(lib.CachedBmp_2 = function() {
 	this.initialize(ss["index_atlas_4"]);
 	this.gotoAndStop(4);
 }).prototype = p = new cjs.Sprite();
 
 
 
-(lib.CachedBmp_149 = function() {
+(lib.CachedBmp_1 = function() {
 	this.initialize(ss["index_atlas_4"]);
 	this.gotoAndStop(5);
 }).prototype = p = new cjs.Sprite();
@@ -596,7 +596,7 @@ if (reversed == null) { reversed = false; }
 	this.timeline.addTween(cjs.Tween.get(this.drag_txt).wait(2));
 
 	// Layer_4
-	this.instance = new lib.CachedBmp_154();
+	this.instance = new lib.CachedBmp_6();
 	this.instance.setTransform(0,0,0.5,0.5);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).to({_off:true},1).wait(1));
@@ -642,7 +642,7 @@ if (reversed == null) { reversed = false; }
 	cjs.MovieClip.apply(this,[props]);
 
 	// Layer_1
-	this.instance = new lib.CachedBmp_153();
+	this.instance = new lib.CachedBmp_5();
 	this.instance.setTransform(0,0,0.5,0.5);
 
 	this.timeline.addTween(cjs.Tween.get(this.instance).wait(1));
@@ -3830,16 +3830,16 @@ if (reversed == null) { reversed = false; }
 	this.shape.graphics.f().s("rgba(142,85,92,0.298)").ss(3,1,1).p("A1noJMArPAAAQDIAAAADIIAAKDQAADIjIAAMgrPAAAQjIAAAAjIIAAqDQAAjIDIAAg");
 	this.shape.setTransform(158.35,52.2);
 
-	this.instance = new lib.CachedBmp_149();
+	this.instance = new lib.CachedBmp_1();
 	this.instance.setTransform(0,0,0.5,0.5);
 
-	this.instance_1 = new lib.CachedBmp_150();
+	this.instance_1 = new lib.CachedBmp_2();
 	this.instance_1.setTransform(0,0,0.5,0.5);
 
-	this.instance_2 = new lib.CachedBmp_151();
+	this.instance_2 = new lib.CachedBmp_3();
 	this.instance_2.setTransform(0,0,0.5,0.5);
 
-	this.instance_3 = new lib.CachedBmp_152();
+	this.instance_3 = new lib.CachedBmp_4();
 	this.instance_3.setTransform(0,0,0.5,0.5);
 
 	this.timeline.addTween(cjs.Tween.get({}).to({state:[]}).to({state:[{t:this.shape}]},1).to({state:[{t:this.instance}]},1).to({state:[{t:this.instance_1}]},1).to({state:[{t:this.instance_2}]},1).to({state:[{t:this.instance_3}]},1).wait(1));
@@ -5782,6 +5782,17 @@ if (reversed == null) { reversed = false; }
 	// actions tween:
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1).call(this.frame_1).wait(1).call(this.frame_2).wait(1));
 
+	// Layer_5
+	this.text = new cjs.Text("1", "bold 85px 'Noto Sans Arabic'", "#333333");
+	this.text.textAlign = "center";
+	this.text.lineHeight = 186;
+	this.text.lineWidth = 100;
+	this.text.parent = this;
+	this.text.setTransform(255.25,425.35);
+	this.text._off = true;
+
+	this.timeline.addTween(cjs.Tween.get(this.text).wait(1).to({_off:false},0).to({_off:true},1).wait(1));
+
 	// not_loaded
 	this.loaded_mc = new lib.Symbol71();
 	this.loaded_mc.name = "loaded_mc";
@@ -6107,10 +6118,10 @@ lib.properties = {
 	color: "#FFFFFF",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/index_atlas_1.png?1782144460693", id:"index_atlas_1"},
-		{src:"images/index_atlas_2.png?1782144460693", id:"index_atlas_2"},
-		{src:"images/index_atlas_3.png?1782144460693", id:"index_atlas_3"},
-		{src:"images/index_atlas_4.png?1782144460693", id:"index_atlas_4"}
+		{src:"images/index_atlas_1.png?1782243041771", id:"index_atlas_1"},
+		{src:"images/index_atlas_2.png?1782243041771", id:"index_atlas_2"},
+		{src:"images/index_atlas_3.png?1782243041771", id:"index_atlas_3"},
+		{src:"images/index_atlas_4.png?1782243041771", id:"index_atlas_4"}
 	],
 	preloads: []
 };

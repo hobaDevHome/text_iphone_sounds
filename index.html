@@ -22,10 +22,54 @@
   }
 </style>
 <script src="libs/1.0.0/createjs.min.js"></script>
-<script src="index.js?1782144460832"></script>
+<script src="index.js?1782243041917"></script>
 <script>
 // Global Scripts
-	// Pause all sounds when app/tab loses focus
+	//////////////// sound functions ///////////////
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+            !/Android/.test(navigator.userAgent) &&
+            navigator.vendor === 'Apple Computer, Inc.';
+if (!isIOS && navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent) && navigator.vendor === 'Apple Computer, Inc.') {
+  isIOS = true;
+}
+var bgMusicInstance = null;
+var musicEnabled = true;
+function startBgMusic() {
+ // console.log("bg music played");
+  if (bgMusicInstance) return;
+  // لو اتحمل العب على طول
+  if (createjs.Sound.loadComplete("bgMusic")) {
+    bgMusicInstance = createjs.Sound.play("bgMusic", {
+        loop: -1,
+        volume: 0.05
+    });
+    // حافظ على حالة الميوت
+    bgMusicInstance.paused = !musicEnabled;
+} else {
+    // لو لسه بيتحمل - استنى الحدث
+    createjs.Sound.on("fileload", function onLoaded(e) {
+      if (e.id === "bgMusic") {
+        createjs.Sound.off("fileload", onLoaded);
+        if (!bgMusicInstance) {
+    bgMusicInstance = createjs.Sound.play("bgMusic", {
+        loop: -1,
+        volume: 0.05
+    });
+    bgMusicInstance.paused = !musicEnabled;
+}
+      }
+    });
+  }
+}
+//for toggle music
+function toggleMusic(){
+  if(!bgMusicInstance){
+      return;
+  }
+  musicEnabled = !musicEnabled;
+  bgMusicInstance.paused = !musicEnabled;
+}
+// Pause all sounds when app/tab loses focus
 document.addEventListener("visibilitychange", function () {
     if (bgMusicInstance) {
         if (document.hidden) {
@@ -35,6 +79,7 @@ document.addEventListener("visibilitychange", function () {
         }
     }
 });
+/////////////////////////////////////////
 window.addEventListener("blur", function () {
     //createjs.Sound.stop();
     if (bgMusicInstance) {
@@ -172,18 +217,6 @@ function callJsonFromFile() {
 	   loadImageIntoMC(exportRoot.logo_mc, logoURL, "logo");
 	// title of game as image	  
 	  loadImageIntoMC(root.animation.gameTitle, jsonData.themeGraphics.gameTitle);
-	  // title of game as text
-	  // التأكد من وجود نص العنوان في ملف الجيسون
-//if (jsonData.themeGraphics && jsonData.themeGraphics.gameTitle) {
-	//console.log("game title")
-	//console.log(jsonData.themeGraphics.gameTitle)
-    // إظهار النص وتعيينه من الجيسون بناءً على اللغة المختارة
-    //root.gameTitle.textTitle.text = jsonData.themeGraphics.gameTitle || "";
-    // تنسيق الخط (اختياري) لضمان استخدام الخط القادم من الجيسون
-    //const fontSize = root.gameTitle.textTitle.font.split('px')[0] || "40"; 
-   //root.gameTitle.textTitle.font = fontSize + "px " + fontFamily;
-   //root.gameTitle.textTitle.textAlign = "center"; // توسيط النص
-//}
         } else {
           setTimeout(tryInit, 50);
         }
@@ -192,23 +225,6 @@ function callJsonFromFile() {
     });
 }
 // ===== LOAD GOOGLE FONTS =====
-/*
-const fontsToLoad = [
-    { weight: '400', url: 'URL_400' },
-    { weight: '500', url: 'URL_500' },
-    { weight: '600', url: 'URL_600' },
-    { weight: '700', url: 'URL_700' },
-];
-fontsToLoad.forEach(function(f) {
-    const font = new FontFace('Noto Sans Arabic',
-        'url(' + f.url + ')',
-        { weight: f.weight }
-    );
-    font.load().then(function(loadedFont) {
-        document.fonts.add(loadedFont);
-    });
-});
-*/
 var fontFamily = "Noto Sans Arabic";
 var fontReady = false;
 Promise.all([
@@ -238,46 +254,6 @@ createjs.Sound.registerSounds(soundsArray, "");
 createjs.Sound.on("fileload", function(e){
   //  // console.log("✅ Sound loaded:", e.id);
 });
-var bgMusicInstance = null;
-var musicEnabled = true;
-function startBgMusic() {
- // console.log("bg music played");
-  if (bgMusicInstance) return;
-  // لو اتحمل العب على طول
-  if (createjs.Sound.loadComplete("bgMusic")) {
-    bgMusicInstance = createjs.Sound.play("bgMusic", {
-        loop: -1,
-        volume: 0.05
-    });
-    // حافظ على حالة الميوت
-    bgMusicInstance.paused = !musicEnabled;
-} else {
-    // لو لسه بيتحمل - استنى الحدث
-    createjs.Sound.on("fileload", function onLoaded(e) {
-      if (e.id === "bgMusic") {
-        createjs.Sound.off("fileload", onLoaded);
-        if (!bgMusicInstance) {
-    bgMusicInstance = createjs.Sound.play("bgMusic", {
-        loop: -1,
-        volume: 0.05
-    });
-    bgMusicInstance.paused = !musicEnabled;
-}
-      }
-    });
-  }
-}
-//for toggle music
-function toggleMusic(){
- // // console.log("🔇 toggleMusic pressed");
-  if(!bgMusicInstance){
-   //   // console.log("❌ no bgMusicInstance");
-      return;
-  }
-  musicEnabled = !musicEnabled;
- // // console.log("musicEnabled:", musicEnabled);
-  bgMusicInstance.paused = !musicEnabled;
-}
 function toArabicNumbers(num) {
 	//// console.log(num)
     return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
@@ -470,12 +446,6 @@ function addInteraction(id, type, response, result){
     });
   }
 }
-var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
-            !/Android/.test(navigator.userAgent) &&
-            navigator.vendor === 'Apple Computer, Inc.';
-if (!isIOS && navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent) && navigator.vendor === 'Apple Computer, Inc.') {
-  isIOS = true;
-}
 if (window.iosFixApplied === undefined) {
   window.iosFixApplied = false;
 }
@@ -483,21 +453,7 @@ function fixIOSText(element, offset, ignoreFlag) {
 offset = offset || 30; 
 if (isIOS && (!window.iosFixApplied || ignoreFlag)) 
 { element.y -= offset; 
-} }
-function fixArabicPunctuation(text) {
-    if (!text) return "";
-    // This regex includes:
-    // ، (Arabic comma)
-    // ؛ (Arabic semicolon)
-    // ؟ (Arabic question mark)
-    // . (Period)
-    // ! (Exclamation)
-    // : (Colon)
-    // ( ) [ ] { } (Brackets)
-    return text.replace(/[،؛؟\.\!\:\(\)\[\]\{\}]/g, function(match) {
-        return "\u200F" + match + "\u200F";
-    });
-}</script>
+} }</script>
 <script>
 var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
 function init() {
@@ -551,6 +507,6 @@ function handleComplete(evt,comp) {
 		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1800px; height:1200px; position: absolute; left: 0px; top: 0px; display: none;">
 		</div>
 	</div>
-    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782144460833 style='vertical-align: middle; max-height: 100%'/></div>
+    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782243041918 style='vertical-align: middle; max-height: 100%'/></div>
 </body>
 </html>
