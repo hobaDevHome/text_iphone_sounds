@@ -22,7 +22,7 @@
   }
 </style>
 <script src="libs/1.0.0/createjs.min.js"></script>
-<script src="index.js?1782243041917"></script>
+<script src="index.js?1782243457982"></script>
 <script>
 // Global Scripts
 	//////////////// sound functions ///////////////
@@ -71,15 +71,28 @@ function toggleMusic(){
 }
 // Pause all sounds when app/tab loses focus
 document.addEventListener("visibilitychange", function () {
-    if (bgMusicInstance) {
-        if (document.hidden) {
-            bgMusicInstance.paused = true;
-        } else if (musicEnabled) {
-            bgMusicInstance.paused = false;
-        }
+    if (!bgMusicInstance) return;
+    if (document.hidden) {
+        bgMusicInstance.paused = true;
+    } else if (musicEnabled) {
+    if (isIOS && /iPhone|iPod/.test(navigator.userAgent)) {
+		alert("iphone ");
+        bgMusicInstance.paused = true;
+		setTimeout(function () {
+			bgMusicInstance.paused = !musicEnabled;
+		}, 100);
+    } else if (isIOS) {  
+        // كود الآيباد الحالي الشغال
+		bgMusicInstance.paused = false;
+        createjs.Sound.resume();
+        bgMusicInstance.paused = true;
+        bgMusicInstance.paused = false;
+    } else {
+        // ويب وأندرويد
+        bgMusicInstance.paused = false;
     }
+}
 });
-/////////////////////////////////////////
 window.addEventListener("blur", function () {
     //createjs.Sound.stop();
     if (bgMusicInstance) {
@@ -92,6 +105,7 @@ window.addEventListener("pagehide", function () {
          bgMusicInstance.paused = true;
     }
 });
+////////////////////////
 window.addEventListener("DOMContentLoaded", function () {
         var preloadDiv = document.getElementById("_preload_div_");
         if (preloadDiv) {
@@ -507,6 +521,6 @@ function handleComplete(evt,comp) {
 		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1800px; height:1200px; position: absolute; left: 0px; top: 0px; display: none;">
 		</div>
 	</div>
-    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782243041918 style='vertical-align: middle; max-height: 100%'/></div>
+    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782243457983 style='vertical-align: middle; max-height: 100%'/></div>
 </body>
 </html>
