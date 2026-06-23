@@ -22,7 +22,7 @@
   }
 </style>
 <script src="libs/1.0.0/createjs.min.js"></script>
-<script src="index.js?1782243457982"></script>
+<script src="index.js?1782244296847"></script>
 <script>
 // Global Scripts
 	//////////////// sound functions ///////////////
@@ -74,24 +74,47 @@ document.addEventListener("visibilitychange", function () {
     if (!bgMusicInstance) return;
     if (document.hidden) {
         bgMusicInstance.paused = true;
-    } else if (musicEnabled) {
-    if (isIOS && /iPhone|iPod/.test(navigator.userAgent)) {
-		alert("iphone ");
-        bgMusicInstance.paused = true;
-		setTimeout(function () {
-			bgMusicInstance.paused = !musicEnabled;
-		}, 100);
-    } else if (isIOS) {  
-        // كود الآيباد الحالي الشغال
-		bgMusicInstance.paused = false;
-        createjs.Sound.resume();
-        bgMusicInstance.paused = true;
-        bgMusicInstance.paused = false;
     } else {
-        // ويب وأندرويد
-        bgMusicInstance.paused = false;
+        // العودة من الخلفية
+        if (isIOS && /iPhone|iPod/.test(navigator.userAgent)) {
+			 alert("iphone ");
+            // معالجة خاصة لـ iPhone
+            if (musicEnabled) {
+                // إذا كان الصوت مفعلاً: نحاول تشغيله
+                bgMusicInstance.paused = false;
+                setTimeout(function () {
+                    if (bgMusicInstance && bgMusicInstance.paused) {
+                        // إذا لم يعمل، نعيد إنشاء الكائن
+                        bgMusicInstance.stop();
+                        bgMusicInstance = null;
+                        bgMusicInstance = createjs.Sound.play("bgMusic", {
+                            loop: -1,
+                            volume: 0.05
+                        });
+                        bgMusicInstance.paused = false;
+                    }
+                }, 100);
+            } else {
+                // إذا كان مكتوماً: نعيد إنشاء الكائن ونوقفه
+                bgMusicInstance.stop();
+                bgMusicInstance = null;
+                bgMusicInstance = createjs.Sound.play("bgMusic", {
+                    loop: -1,
+                    volume: 0.05
+                });
+                bgMusicInstance.paused = true;  // نبقيه مكتوماً
+            }
+        } else if (isIOS) {
+            // كود الآيباد كما هو دون تغيير
+            bgMusicInstance.paused = false;
+            createjs.Sound.resume();
+            bgMusicInstance.paused = true;
+            bgMusicInstance.paused = false;
+        } else {
+            // ويب وأندرويد
+            bgMusicInstance.paused = false;
+        }
     }
-}
 });
 window.addEventListener("blur", function () {
     //createjs.Sound.stop();
@@ -521,6 +544,6 @@ function handleComplete(evt,comp) {
 		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1800px; height:1200px; position: absolute; left: 0px; top: 0px; display: none;">
 		</div>
 	</div>
-    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782243457983 style='vertical-align: middle; max-height: 100%'/></div>
+    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782244296848 style='vertical-align: middle; max-height: 100%'/></div>
 </body>
 </html>

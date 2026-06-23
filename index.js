@@ -4221,15 +4221,6 @@ if (reversed == null) { reversed = false; }
 		var root = this;
 		var lastHoveredDrop = null;
 		var currentStep = 0;
-		isFirstLoad = true;
-		//musicEnabled = true;
-		if (typeof musicEnabled === "undefined") {
-		    musicEnabled = true;
-		}
-		
-		if(bgMusicInstance){
-		    bgMusicInstance.paused = !musicEnabled;
-		}
 		const MAX_ITEMS_PER_SLICE = 6;
 		
 		window.allElements = [];
@@ -4237,8 +4228,28 @@ if (reversed == null) { reversed = false; }
 		window.totalSlices = 0;
 		window.currentSliceElements = [];
 		
-		// ⭐⭐⭐ نظام التتبع الجديد ⭐⭐⭐
-		var debugMode = true; // خليه true عشان تشوفي اللوج، بعد ما تصلحيه حطيه false
+		isFirstLoad = true;
+		var debugMode = true; 
+		if (typeof musicEnabled === "undefined") {
+		    musicEnabled = true;
+		}
+		
+		if(bgMusicInstance){
+		    bgMusicInstance.paused = !musicEnabled;
+		}
+		
+		startBgMusic();
+		if (musicEnabled) {
+		  root.mute.gotoAndStop(0);
+		} else {
+		  root.mute.gotoAndStop(1);
+		}
+		
+		
+		
+		
+		
+		
 		function logDropsStatus(message) {
 		  if (!debugMode) return;
 		  // // console.log("===== " + message + " =====");
@@ -4256,12 +4267,8 @@ if (reversed == null) { reversed = false; }
 		  Sounds
 		================================================= */
 		
-		startBgMusic();
-		if (musicEnabled) {
-		  root.mute.gotoAndStop(0);
-		} else {
-		  root.mute.gotoAndStop(1);
-		}
+		
+		
 		root.music_btn.removeAllEventListeners();
 		root.music_btn.addEventListener("click", muteMusic);
 		function muteMusic() {
@@ -5783,7 +5790,7 @@ if (reversed == null) { reversed = false; }
 	this.timeline.addTween(cjs.Tween.get(this).call(this.frame_0).wait(1).call(this.frame_1).wait(1).call(this.frame_2).wait(1));
 
 	// Layer_5
-	this.text = new cjs.Text("2", "bold 85px 'Noto Sans Arabic'", "#333333");
+	this.text = new cjs.Text("3", "bold 85px 'Noto Sans Arabic'", "#333333");
 	this.text.textAlign = "center";
 	this.text.lineHeight = 186;
 	this.text.lineWidth = 100;
@@ -6118,10 +6125,10 @@ lib.properties = {
 	color: "#FFFFFF",
 	opacity: 1.00,
 	manifest: [
-		{src:"images/index_atlas_1.png?1782243457821", id:"index_atlas_1"},
-		{src:"images/index_atlas_2.png?1782243457821", id:"index_atlas_2"},
-		{src:"images/index_atlas_3.png?1782243457821", id:"index_atlas_3"},
-		{src:"images/index_atlas_4.png?1782243457821", id:"index_atlas_4"}
+		{src:"images/index_atlas_1.png?1782244296645", id:"index_atlas_1"},
+		{src:"images/index_atlas_2.png?1782244296645", id:"index_atlas_2"},
+		{src:"images/index_atlas_3.png?1782244296645", id:"index_atlas_3"},
+		{src:"images/index_atlas_4.png?1782244296645", id:"index_atlas_4"}
 	],
 	preloads: []
 };
