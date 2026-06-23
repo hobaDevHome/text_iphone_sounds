@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<!--
+	NOTES:
+	1. All tokens are represented by '$' sign in the template.
+	2. You can write your code only wherever mentioned.
+	3. All occurrences of existing tokens will be replaced by their appropriate values.
+	4. Blank lines will be removed automatically.
+	5. Remove unnecessary comments before creating your template.
+-->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<title>index</title>
+<!-- write your code here -->
+<style>
+  #animation_container, #_preload_div_ {
+	position:absolute;
+	margin:auto;
+	left:0;right:0;
+	top:0;bottom:0;
+  }
+</style>
+<script src="libs/1.0.0/createjs.min.js"></script>
+<script src="index.js?1782144460832"></script>
+<script>
+// Global Scripts
+	// Pause all sounds when app/tab loses focus
+document.addEventListener("visibilitychange", function () {
+    if (bgMusicInstance) {
+        if (document.hidden) {
+            bgMusicInstance.paused = true;
+        } else if (musicEnabled) {
+            bgMusicInstance.paused = false;
+        }
+    }
+});
+window.addEventListener("blur", function () {
+    //createjs.Sound.stop();
+    if (bgMusicInstance) {
+         bgMusicInstance.paused = true;
+    }
+});
+window.addEventListener("pagehide", function () {
+    //createjs.Sound.stop();
+    if (bgMusicInstance) {
+         bgMusicInstance.paused = true;
+    }
+});
+window.addEventListener("DOMContentLoaded", function () {
+        var preloadDiv = document.getElementById("_preload_div_");
+        if (preloadDiv) {
+          var preloaderImg = preloadDiv.querySelector("img");
+          if (preloaderImg && preloaderImg.src.includes("_preloader.gif")) {
+            // Update the src to the new file path
+            preloaderImg.src = "./preloader.gif";
+          }
+        }
+      });
+var jsonData;
+var dataLoaded = false;
+var percent = 0
+var isFirstLoad;
+var currentTheme;
+var fontFamily
+var currentPath;
+var mediaPath = "../library/";
+var scriptsPath =  "../library/scripts/";
+var loaded = false
+var templateDataURL
+const params = new URLSearchParams(window.location.search);
+window.activityLoaderReady = new Promise(function(resolve, reject) {
+    var script = document.createElement('script');
+	script.type = 'module';
+    script.src = scriptsPath + "activity-loader.js";
+    script.onload = function() {
+        console.log(
+            'Activity Loader loaded from:',
+            script.src
+        );
+        resolve();
+    };
+    script.onerror = function() {
+        console.error(
+            'Failed to load from:',
+            script.src
+        );
+        reject();
+    };
+    document.head.appendChild(script);
+});
+var activityID = params.get('id') 
+var userToken = params.get('token') 
+// console.log('activityID',activityID)
+if(activityID != null){
+    window.activityLoaderReady.then(function(){
+        loadURLFromAPI();
+    });
+}else{
+    setDefaults();
+}
+function setDefaults(){
+	// for local search-  add pics,logo and sfx folders-also add json data file
+	currentPath = "data.json"
+	mediaPath = ""
+	templateDataURL = ""
+	loaded = true;
+	scriptsPath = ""
+	callJsonFromFile()
+	}
+//////// load json functions ///////
+var logoURL;
+async function loadURLFromAPI() {
+    try {
+        const data = await getActivityData(
+            activityID,
+            userToken
+        );
+        console.log("data.status", data.status);
+        if (data.status) {
+            currentPath =
+                data.templateDataURL + "/data.json";
+            templateDataURL =
+                data.templateDataURL;
+            logoURL = data.logo;
+            callJsonFromFile();
+        } else {
+            loaded = false;
+            function showError() {
+                if (typeof exportRoot !== "undefined") {
+                    exportRoot.loaded_mc.visible = true;
+                    exportRoot.loaded_mc.error_masg.text =
+                        data.message;
+                } else {
+                    setTimeout(showError, 50);
+                }
+            }
+            showError();
+        }
+    } catch (error) {
+        console.error(
+            "loadURLFromAPI Error:",
+            error
+        );
+    }
+}
+function callJsonFromFile() {
+  fetch(currentPath)
+    .then(r => r.json())
+    .then(async data => {
+      jsonData = data;
+      currentTheme = data.theme;
+      fontFamily = data.themeGraphics[currentTheme].font;
+      loaded = true;
+		// console.log("data------------", jsonData)
+		document.title = data.titleText;
+      try {
+        await document.fonts.load(`20px "${fontFamily}"`);
+      } catch (e) {
+        console.warn("⚠️ Font load failed:", e);
+      }
+      function tryInit() {
+        if (typeof exportRoot !== "undefined") {
+          exportRoot.gotoAndStop("game_start");
+          var root = exportRoot;
+          root.loaded_mc.visible = false;
+          root.animation.start_btn.removeAllEventListeners();
+          root.animation.start_btn.addEventListener("click", function() {
+            createjs.Sound.play("ClickSound");
+            root.gotoAndStop(root.currentFrame + 1);
+          });
+	   loadImageIntoMC(exportRoot.logo_mc, logoURL, "logo");
+	// title of game as image	  
+	  loadImageIntoMC(root.animation.gameTitle, jsonData.themeGraphics.gameTitle);
+	  // title of game as text
+	  // التأكد من وجود نص العنوان في ملف الجيسون
+//if (jsonData.themeGraphics && jsonData.themeGraphics.gameTitle) {
+	//console.log("game title")
+	//console.log(jsonData.themeGraphics.gameTitle)
+    // إظهار النص وتعيينه من الجيسون بناءً على اللغة المختارة
+    //root.gameTitle.textTitle.text = jsonData.themeGraphics.gameTitle || "";
+    // تنسيق الخط (اختياري) لضمان استخدام الخط القادم من الجيسون
+    //const fontSize = root.gameTitle.textTitle.font.split('px')[0] || "40"; 
+   //root.gameTitle.textTitle.font = fontSize + "px " + fontFamily;
+   //root.gameTitle.textTitle.textAlign = "center"; // توسيط النص
+//}
+        } else {
+          setTimeout(tryInit, 50);
+        }
+      }
+      tryInit();
+    });
+}
+// ===== LOAD GOOGLE FONTS =====
+/*
+const fontsToLoad = [
+    { weight: '400', url: 'URL_400' },
+    { weight: '500', url: 'URL_500' },
+    { weight: '600', url: 'URL_600' },
+    { weight: '700', url: 'URL_700' },
+];
+fontsToLoad.forEach(function(f) {
+    const font = new FontFace('Noto Sans Arabic',
+        'url(' + f.url + ')',
+        { weight: f.weight }
+    );
+    font.load().then(function(loadedFont) {
+        document.fonts.add(loadedFont);
+    });
+});
+*/
+var fontFamily = "Noto Sans Arabic";
+var fontReady = false;
+Promise.all([
+  new FontFace("Noto Sans Arabic", "url(fonts/NotoSansArabic-Regular.woff2)", { weight: "400" }).load(),
+  new FontFace("Noto Sans Arabic", "url(fonts/NotoSansArabic-Medium.woff2)", { weight: "500" }).load(),
+  new FontFace("Noto Sans Arabic", "url(fonts/NotoSansArabic-SemiBold.woff2)", { weight: "600" }).load(),
+  new FontFace("Noto Sans Arabic", "url(fonts/NotoSansArabic-Bold.woff2)", { weight: "700" }).load()
+]).then(function(fonts) {
+  fonts.forEach(function(f) { document.fonts.add(f); });
+  fontReady = true;
+}).catch(function(err) {
+  console.warn("Font load error:", err);
+  fontReady = true;
+})
+//sounds
+var soundsArray = [
+  { id: "right_answer", src: mediaPath + "sfx/right_answer.mp3" },
+  { id: "wrong_answer1", src: mediaPath + "sfx/wrong_answer1.mp3" },
+  { id: "wrong_answer2", src: mediaPath + "sfx/wrong_answer2.mp3" },
+  { id: "ClickSound",  src:mediaPath +  "sfx/ClickSound.mp3" },
+  { id: "failure",  src: mediaPath + "sfx/failure.mp3" },
+  { id: "bgMusic", src: mediaPath + "sfx/bgMusic_history.mp3" },
+  { id: "success", src: mediaPath + "sfx/success.mp3" },
+  { id: "select" , src: mediaPath + "sfx/select_icon.mp3"}
+];
+createjs.Sound.registerSounds(soundsArray, "");
+createjs.Sound.on("fileload", function(e){
+  //  // console.log("✅ Sound loaded:", e.id);
+});
+var bgMusicInstance = null;
+var musicEnabled = true;
+function startBgMusic() {
+ // console.log("bg music played");
+  if (bgMusicInstance) return;
+  // لو اتحمل العب على طول
+  if (createjs.Sound.loadComplete("bgMusic")) {
+    bgMusicInstance = createjs.Sound.play("bgMusic", {
+        loop: -1,
+        volume: 0.05
+    });
+    // حافظ على حالة الميوت
+    bgMusicInstance.paused = !musicEnabled;
+} else {
+    // لو لسه بيتحمل - استنى الحدث
+    createjs.Sound.on("fileload", function onLoaded(e) {
+      if (e.id === "bgMusic") {
+        createjs.Sound.off("fileload", onLoaded);
+        if (!bgMusicInstance) {
+    bgMusicInstance = createjs.Sound.play("bgMusic", {
+        loop: -1,
+        volume: 0.05
+    });
+    bgMusicInstance.paused = !musicEnabled;
+}
+      }
+    });
+  }
+}
+//for toggle music
+function toggleMusic(){
+ // // console.log("🔇 toggleMusic pressed");
+  if(!bgMusicInstance){
+   //   // console.log("❌ no bgMusicInstance");
+      return;
+  }
+  musicEnabled = !musicEnabled;
+ // // console.log("musicEnabled:", musicEnabled);
+  bgMusicInstance.paused = !musicEnabled;
+}
+function toArabicNumbers(num) {
+	//// console.log(num)
+    return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+}
+//safe area
+// ===== Inject CSS =====
+(function() {
+  var style = document.createElement('style');
+  style.innerHTML = [
+    'body, html {',
+    ' margin: 0; padding: 0;',
+    ' overflow: hidden;',
+    ' width: 100%; height: 100%;',
+    ' background: #fff;',
+    '}',
+    '#animation_container, #_preload_div_ {',
+    ' position: fixed;',
+    ' top: 0; left: 0;',
+    ' width: 100% !important; height: 100% !important;',
+    ' overflow: hidden;',
+    '}',
+    '#canvas {',
+    ' display: block;',
+    ' position: absolute;',
+    '}'
+  ].join('\n');
+  document.head.appendChild(style);
+})();
+// ===== Custom Resize Logic =====
+(function waitForStage() {
+  if (typeof stage === 'undefined' || !stage) {
+    setTimeout(waitForStage, 50);
+    return;
+  }
+  var safeW = 1550,
+      safeH = 835,
+      safeX = 120,
+      safeY = 190,
+      canvasEl      = document.getElementById('canvas'),
+      animContainer = document.getElementById('animation_container'),
+      domOverlay    = document.getElementById('dom_overlay_container');
+  function resizeCanvas() {
+    var iw     = window.innerWidth,
+        ih     = window.innerHeight,
+        pRatio = window.devicePixelRatio || 1,
+        sRatio = Math.min(iw / safeW, ih / safeH);
+    var scaledCanvasW = 1800 * sRatio;
+    var scaledCanvasH = 1200 * sRatio;
+    if (iw > ih) {
+      if (scaledCanvasW < iw) sRatio = sRatio * (iw / scaledCanvasW);
+      if (scaledCanvasH < ih) sRatio = sRatio * (ih / scaledCanvasH);
+    }
+    sRatio = sRatio * 1.005;
+    canvasEl.width  = iw * pRatio;
+    canvasEl.height = ih * pRatio;
+    canvasEl.style.width  = iw + 'px';
+    canvasEl.style.height = ih + 'px';
+    if (animContainer) {
+      animContainer.style.width  = iw + 'px';
+      animContainer.style.height = ih + 'px';
+    }
+    if (domOverlay) {
+      domOverlay.style.width  = iw + 'px';
+      domOverlay.style.height = ih + 'px';
+    }
+    stage.scaleX = stage.scaleY = sRatio * pRatio;
+    stage.x = (iw * pRatio - safeW * sRatio * pRatio) / 2
+              - (safeX * sRatio * pRatio);
+    stage.y = (ih * pRatio - safeH * sRatio * pRatio) / 2
+              - (safeY * sRatio * pRatio);
+    stage.tickOnUpdate = false;
+    var visibleOriginX = -stage.x / (sRatio * pRatio);
+    var visibleOriginY = -stage.y / (sRatio * pRatio);
+    visibleOriginX = Math.max(0, visibleOriginX);
+    visibleOriginY = Math.max(0, visibleOriginY);
+    if (exportRoot.logo_mc) {
+      exportRoot.logo_mc.x = visibleOriginX + 30;
+      exportRoot.logo_mc.y = visibleOriginY + 30;
+    }
+    stage.update();
+    stage.tickOnUpdate = true;
+  }
+  // Resize event
+  window.removeEventListener('resize', window._animResize);
+  window._animResize = resizeCanvas;
+  window.addEventListener('resize', window._animResize);
+  // Safari iPad sidebar fix فقط
+  var _lastIW = window.innerWidth;
+  var _lastIH = window.innerHeight;
+  setInterval(function() {
+    if (window.innerWidth !== _lastIW || window.innerHeight !== _lastIH) {
+      _lastIW = window.innerWidth;
+      _lastIH = window.innerHeight;
+      resizeCanvas();
+    }
+  }, 300);
+  resizeCanvas();
+})();
+//for scorm object 
+//var basePath = window.location.origin + '/'; 
+window.scormHandlerReady = new Promise(function(resolve, reject) {
+    var script = document.createElement('script');
+    // استخدام الـ base path
+    script.src = scriptsPath + "scorm-handler.js";
+    script.onload = function() {
+        // console.log('SCORM Handler loaded from:', script.src);
+        resolve();
+    };
+    script.onerror = function() {
+        console.error('Failed to load from:', script.src);
+        reject();
+    };
+    document.head.appendChild(script);
+});
+////////////// load images code ///////////
+function loadImageIntoBox(dragBox, path){
+  const txt = dragBox.getChildByName("drag_txt");
+  const dragShape = dragBox.drag1;
+  const b = dragShape.nominalBounds 
+  dragShape.removeAllChildren();
+  if(path){
+    const img = new Image();
+    img.onload = function(){
+      const bmp = new createjs.Bitmap(img);
+      // ⭐ نفس حجم الدراج بالظبط
+      bmp.scaleX = b.width  / img.width;
+      bmp.scaleY = b.height / img.height;
+      bmp.x = 0;
+      bmp.y = 0;
+      // ⭐ إنشاء mask بزوايا دائرية
+      dragShape.addChild(bmp);
+      stage.update();
+    };
+     if (templateDataURL)
+	  {
+		      img.src = templateDataURL + "/" + path;
+		  }
+	  else
+	  {
+		img.src =path;
+		  }
+  }
+}
+function loadImageIntoMC(dragBox, path, type=""){
+  const dragShape = dragBox.getChildAt(0);
+  const b = dragShape.nominalBounds || {width:100,height:120};
+  dragShape.removeAllChildren();
+  if(path){
+	 const img = new Image();
+    img.onload = function(){
+      const bmp = new createjs.Bitmap(img);
+      // ⭐ نفس حجم الدراج بالظبط
+      bmp.scaleX = b.width  / img.width;
+      bmp.scaleY = b.height / img.height;
+      bmp.x = 0;
+      bmp.y = 0;
+      dragShape.addChild(bmp);
+      stage.update();
+    };
+// condition for  data path and logo path
+	if(type == "logo"){
+		img.src = logoURL;
+	} else {
+		img.src = templateDataURL ? templateDataURL + "/" + path : path;
+	}
+	  }
+}
+function makeBold(txt){
+  if(!txt) return;
+  const size = txt.font.match(/\d+px/)?.[0] || "24px";
+  const family = txt.font.replace(size, "").trim();
+  txt.font = "bold " + size + " " + family;
+ // // console.log("🔥 title_txt bold applied:", txt.font);
+}
+//for scorm object 
+window.interactions = [];
+function addInteraction(id, type, response, result){
+  const existing = window.interactions.find(i => i.id === id);
+  if(existing){
+    // تحديث الإجابة لو السؤال اتجاوب قبل كده
+    existing.response = response;
+    existing.result = result;
+  }else{
+    // إضافة سؤال جديد
+    window.interactions.push({
+      id: id,
+      type: type,
+      response: response,
+      result: result
+    });
+  }
+}
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+            !/Android/.test(navigator.userAgent) &&
+            navigator.vendor === 'Apple Computer, Inc.';
+if (!isIOS && navigator.maxTouchPoints > 1 && /Mac/.test(navigator.userAgent) && navigator.vendor === 'Apple Computer, Inc.') {
+  isIOS = true;
+}
+if (window.iosFixApplied === undefined) {
+  window.iosFixApplied = false;
+}
+function fixIOSText(element, offset, ignoreFlag) { 
+offset = offset || 30; 
+if (isIOS && (!window.iosFixApplied || ignoreFlag)) 
+{ element.y -= offset; 
+} }
+function fixArabicPunctuation(text) {
+    if (!text) return "";
+    // This regex includes:
+    // ، (Arabic comma)
+    // ؛ (Arabic semicolon)
+    // ؟ (Arabic question mark)
+    // . (Period)
+    // ! (Exclamation)
+    // : (Colon)
+    // ( ) [ ] { } (Brackets)
+    return text.replace(/[،؛؟\.\!\:\(\)\[\]\{\}]/g, function(match) {
+        return "\u200F" + match + "\u200F";
+    });
+}</script>
+<script>
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+function init() {
+	canvas = document.getElementById("canvas");
+	anim_container = document.getElementById("animation_container");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+	var comp=AdobeAn.getComposition("A3AEFBB9882AC04B82D2EC07A0D9EEBE");
+	var lib=comp.getLibrary();
+	var loader = new createjs.LoadQueue(false);
+	loader.addEventListener("fileload", function(evt){handleFileLoad(evt,comp)});
+	loader.addEventListener("complete", function(evt){handleComplete(evt,comp)});
+	var lib=comp.getLibrary();
+	loader.loadManifest(lib.properties.manifest);
+}
+function handleFileLoad(evt, comp) {
+	var images=comp.getImages();	
+	if (evt && (evt.item.type == "image")) { images[evt.item.id] = evt.result; }	
+}
+function handleComplete(evt,comp) {
+	//This function is always called, irrespective of the content. You can use the variable "stage" after it is created in token create_stage.
+	var lib=comp.getLibrary();
+	var ss=comp.getSpriteSheet();
+	var queue = evt.target;
+	var ssMetadata = lib.ssMetadata;
+	for(i=0; i<ssMetadata.length; i++) {
+		ss[ssMetadata[i].name] = new createjs.SpriteSheet( {"images": [queue.getResult(ssMetadata[i].name)], "frames": ssMetadata[i].frames} )
+	}
+	var preloaderDiv = document.getElementById("_preload_div_");
+	preloaderDiv.style.display = 'none';
+	canvas.style.display = 'block';
+	exportRoot = new lib.index();
+	stage = new lib.Stage(canvas);
+	stage.enableMouseOver();	
+	//Registers the "tick" event listener.
+	fnStartAnimation = function() {
+		stage.addChild(exportRoot);
+		createjs.Ticker.framerate = lib.properties.fps;
+		createjs.Ticker.addEventListener("tick", stage);
+	}	    
+	//Code to support hidpi screens and responsive scaling.
+	AdobeAn.makeResponsive(true,'both',true,1,[canvas,preloaderDiv,anim_container,dom_overlay_container]);	
+	AdobeAn.compositionLoaded(lib.properties.id);
+	fnStartAnimation();
+}
+</script>
+<!-- write your code here -->
+</head>
+<body onload="init();" style="margin:0px;">
+	<div id="animation_container" style="background-color:rgba(255, 255, 255, 1.00); width:1800px; height:1200px">
+		<canvas id="canvas" width="1800" height="1200" style="position: absolute; display: none; background-color:rgba(255, 255, 255, 1.00);"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1800px; height:1200px; position: absolute; left: 0px; top: 0px; display: none;">
+		</div>
+	</div>
+    <div id='_preload_div_' style='position:absolute; top:0; left:0; display: inline-block; height:1200px; width: 1800px; text-align: center;'>	<span style='display: inline-block; height: 100%; vertical-align: middle;'></span>	<img src=images/_preloader.gif?1782144460833 style='vertical-align: middle; max-height: 100%'/></div>
+</body>
+</html>
